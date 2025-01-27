@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "module": "ES2022",
+    "target": "es6",
+    "lib": ["dom", "esnext"],
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@packages/atoms/*": ["../atoms/src/*"]
+    }
+  },
+  "include": ["src/**/*", "../common/src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,15 @@
+node_modules/
+
+
+# Next.js
+.next
+out
+
+vite.config.*.timestamp*
+
+apps/*/build
+apps/*/dist
+apps/**/.env
+apps/**/.env.*
+packages/*/build
+packages/*/dist

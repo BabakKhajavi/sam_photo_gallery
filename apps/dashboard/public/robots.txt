@@ -1,0 +1,12 @@
+# robots.txt for example.com
+
+User-agent: *
+Disallow: 
+Allow: 
+
+# Block specific bots
+User-agent: BadBot
+Disallow: /
+
+# Sitemap location
+Sitemap: https://optimizedclosets.ca

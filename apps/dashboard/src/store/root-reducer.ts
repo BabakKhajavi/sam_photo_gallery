@@ -1,0 +1,57 @@
+import { combineReducers } from '@reduxjs/toolkit';
+
+import {
+  advertisementApiSlice,
+  alertReducer,
+  approachApiSlice,
+  categoryApiSlice,
+  cityApiSlice,
+  contactApiSlice,
+  findusApiSlice,
+  galleryApiSlice,
+  jumbotronApiSlice,
+  mapReducer,
+  requestApiSlice,
+  reviewApiSlice,
+  subcategoryApiSlice,
+  welcomeApiSlice,
+  menuReducer,
+  authReducer,
+  usersApiSlice,
+} from '../modules';
+
+export const rootReducer = combineReducers({
+  authReducer,
+  menuReducer,
+  mapReducer,
+  alertReducer,
+  [contactApiSlice.reducerPath]: contactApiSlice.reducer,
+  [cityApiSlice.reducerPath]: cityApiSlice.reducer,
+  [advertisementApiSlice.reducerPath]: advertisementApiSlice.reducer,
+  [approachApiSlice.reducerPath]: approachApiSlice.reducer,
+  [findusApiSlice.reducerPath]: findusApiSlice.reducer,
+  [categoryApiSlice.reducerPath]: categoryApiSlice.reducer,
+  [subcategoryApiSlice.reducerPath]: subcategoryApiSlice.reducer,
+  [galleryApiSlice.reducerPath]: galleryApiSlice.reducer,
+  [jumbotronApiSlice.reducerPath]: jumbotronApiSlice.reducer,
+  [reviewApiSlice.reducerPath]: reviewApiSlice.reducer,
+  [welcomeApiSlice.reducerPath]: welcomeApiSlice.reducer,
+  [requestApiSlice.reducerPath]: requestApiSlice.reducer,
+  [usersApiSlice.reducerPath]: usersApiSlice.reducer,
+});
+
+export const apiSlices = [
+  contactApiSlice,
+  cityApiSlice,
+  advertisementApiSlice,
+  approachApiSlice,
+  findusApiSlice,
+  categoryApiSlice,
+  subcategoryApiSlice,
+  galleryApiSlice,
+  jumbotronApiSlice,
+  reviewApiSlice,
+  welcomeApiSlice,
+  requestApiSlice,
+  usersApiSlice,
+];
