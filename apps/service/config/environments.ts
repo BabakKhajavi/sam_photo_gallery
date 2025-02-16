@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 import path from 'path';
-const envFilePath = path.resolve(`.env.${process.env.NODE_ENV}`);
-const result = dotenv.config({ path: envFilePath });
+const result = dotenv.config();
 if (result.error) {
   console.error('Failed to load .env file:', result.error);
   process.exit(1);
@@ -11,7 +10,8 @@ export const environment = {
   origins: [
     process.env.CORS_ORIGIN_PORTAL as string,
     process.env.CORS_ORIGIN_APP as string,
-    'http://localhost:4173',
+    'http://localhost:5000',
+    '*',
   ],
   jwtSecretKey: process.env.JWT_SECRET_KEY,
   host: process.env.HOST || 'localhost',

@@ -1,13 +1,13 @@
 {
   "name": "@packages/common",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
     "serve": "vite preview",
-    "watch": "vite build --watch"
+    "watch": "vite build --watch",
+    "build": "NODE_ENV=development vite build"
   },
   "peerDependencies": {
     "react": "^18.2.0",
@@ -24,6 +24,7 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
     "vite": "^6.0.3",
-    "vite-plugin-dts": "^4.3.0"
+    "vite-plugin-dts": "^4.3.0",
+    "copyfiles": "^2.4.1"
   }
 }

@@ -1,7 +1,7 @@
 import app from './app';
 import { connectToDatabase } from './utils/database';
 
-const port = process.env.PORT || 8080;
+const port = 8080;
 
 import { Server } from 'http';
 

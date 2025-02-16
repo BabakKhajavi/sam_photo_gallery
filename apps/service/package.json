@@ -2,13 +2,14 @@
   "name": "@photo/service",
   "version": "1.0.0",
   "description": "Sam Photo Gallery Service",
-  "main": "app.js",
+  "main": "dist/server.js",
   "scripts": {
     "test": "NODE_ENV=development jest --watch --detectOpenHandles",
     "start": "NODE_ENV=development ts-node server.ts",
     "start:development": "NODE_ENV=development nodemon",
     "start:production": "NODE_ENV=production node server.js",
-    "build": "NODE_ENV=production tsc"
+    "clear": "rm -rf dist",
+    "build": "yarn run clear && NODE_ENV=production tsc"
   },
   "author": "",
   "license": "ISC",
