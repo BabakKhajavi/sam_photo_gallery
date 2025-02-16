@@ -1,35 +1,17 @@
 import { ICategory } from '@packages/common';
-import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+import { Schema, model, Document } from 'mongoose';
 
-interface ICategoryCreationAttributes extends Optional<ICategory, 'id'> {}
+const categorySchema = new Schema<ICategory>({
+  id: {
+    type: String,
+    required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+});
 
-class Category
-  extends Model<ICategory, ICategoryCreationAttributes>
-  implements ICategory
-{
-  public id!: number;
-  public title!: string;
-  static initialize(sequelize: Sequelize) {
-    Category.init(
-      {
-        id: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-          allowNull: false,
-        },
-        title: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-      },
-      {
-        sequelize,
-        modelName: 'category',
-        timestamps: false,
-      }
-    );
-  }
-}
+const Category = model<ICategory>('Category', categorySchema);
 
 export { Category };

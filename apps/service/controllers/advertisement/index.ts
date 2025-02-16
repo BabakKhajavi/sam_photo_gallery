@@ -14,7 +14,7 @@ router
   .get(async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = parseInt(req.params.id);
-      const result = await Advertisement.findByPk(id);
+      const result = await Advertisement.findById(id);
       res.status(SuccessStatusCode.OK).send(result);
     } catch (error) {
       next(error);
@@ -25,7 +25,7 @@ router
   .route('/')
   .get(async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await Advertisement.findAll();
+      const result = await Advertisement.find();
       res.status(SuccessStatusCode.OK).send(result);
     } catch (error) {
       next(error);
@@ -39,15 +39,15 @@ router
     advertisementValidators.createValidator,
     validateRequest,
     async (req: Request, res: Response, next: NextFunction) => {
-      console.log('req.body', req.body);
       try {
         let payload = { ...req.body };
-        const approach = await Advertisement.create(payload);
-        res.status(SuccessStatusCode.CREATED).send(approach);
+        const advertisement = new Advertisement(payload);
+        await advertisement.save();
+        res.status(SuccessStatusCode.CREATED).send(advertisement);
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 router
@@ -60,16 +60,18 @@ router
       try {
         const id = parseInt(req.params.id);
         const payload = { ...req.body };
-        const result = await Advertisement.findByPk(id);
+        const result = await Advertisement.findByIdAndUpdate(id, payload, {
+          new: true,
+          runValidators: true,
+        });
         if (!result) {
           return next(HttpError.notFound(ErrorMessages.NoRecordFound));
         }
-        await result.update(payload);
         res.status(SuccessStatusCode.OK).send(result);
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 router
@@ -81,13 +83,12 @@ router
     async (req: Request, res: Response, next: NextFunction) => {
       const id = parseInt(req.params.id);
 
-      const result = await Advertisement.findByPk(id);
+      const result = await Advertisement.findByIdAndDelete(id);
       if (!result) {
         return next(HttpError.notFound(ErrorMessages.NoRecordFound));
       }
-      await result.destroy();
       res.status(SuccessStatusCode.OK).send(result);
-    }
+    },
   );
 
 export { router as advertisementController };

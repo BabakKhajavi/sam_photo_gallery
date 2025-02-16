@@ -1,5 +1,5 @@
 import express, { NextFunction } from 'express';
-import { Auth } from '../../models';
+import { User } from '../../models';
 import { generateToken } from '../../utils/generate-token';
 import { HttpError } from '../../utils/http-error';
 import { ErrorMessages, SuccessStatusCode } from '../../types/enums';
@@ -22,12 +22,12 @@ router
         const userPayload = { ...req.body } as IUser;
         const encryptedPassword = await encrypt(userPayload.password, 12);
         userPayload.password = encryptedPassword;
-        const user = await Auth.create(userPayload);
+        const user = await User.create(userPayload);
         res.status(SuccessStatusCode.CREATED).send(user);
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 router
   .route('/users')
@@ -39,12 +39,12 @@ router
         const userPayload = { ...req.body } as IUser;
         const encryptedPassword = await encrypt(userPayload.password, 12);
         userPayload.password = encryptedPassword;
-        const user = await Auth.create(userPayload);
+        const user = await User.create(userPayload);
         res.status(SuccessStatusCode.CREATED).send(user);
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 router
@@ -57,12 +57,12 @@ router
         const userPayload = { ...req.body } as IUser;
         const encryptedPassword = await encrypt(userPayload.password, 12);
         userPayload.password = encryptedPassword;
-        const user = await Auth.create(userPayload);
+        const user = await User.create(userPayload);
         res.status(SuccessStatusCode.CREATED).send(user);
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 router.route('/login').post(
@@ -72,7 +72,7 @@ router.route('/login').post(
     console.log('req.body', req.body);
     try {
       const { username, password } = req.body;
-      const existingUser = await Auth.findOne({ where: { username } });
+      const existingUser = await User.findOne({ where: { username } });
       if (existingUser) {
         const passwordMatched = await isMatch(password, existingUser.password);
         if (passwordMatched) {
@@ -81,10 +81,10 @@ router.route('/login').post(
           };
 
           const data: UserWithoutPassword & {
-            isAuthenticatedDashboard: boolean;
+            isUserenticatedDashboard: boolean;
           } = {
             ...userWithoutPassword,
-            isAuthenticatedDashboard: true,
+            isUserenticatedDashboard: true,
           };
           const token = generateToken(data);
           res.status(SuccessStatusCode.CREATED).send({ token: token });
@@ -99,7 +99,7 @@ router.route('/login').post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 export { router as authController };

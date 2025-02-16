@@ -7,18 +7,14 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "incremental": true,
-    "jsx": "preserve",
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "noEmit": true,
+    "jsx": "react-jsx",
     "paths": {
       "@packages/common/*": ["../packages/common/src/*"],
       "@packages/atoms/*": ["../packages/atoms/src/*"],
@@ -26,6 +22,6 @@
       "@packages/organisms/*": ["../packages/organisms/src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["src", "types", "../packages/common/src/theme.d.ts"],
   "exclude": ["node_modules"]
 }

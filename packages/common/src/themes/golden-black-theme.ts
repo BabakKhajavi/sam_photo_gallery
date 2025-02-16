@@ -1,6 +1,30 @@
 import { createTheme } from '@mui/material/styles';
 
 import { baseTheme } from './base';
+declare module '@mui/material/styles' {
+  interface Palette {
+    customColors: {
+      light: string;
+      main: string;
+      dark: string;
+      contrastText: string;
+      lightGray: string;
+      golden: string;
+      lightGolden: string;
+    };
+  }
+  interface PaletteOptions {
+    customColors?: {
+      light: string;
+      main: string;
+      dark: string;
+      contrastText: string;
+      lightGray: string;
+      golden: string;
+      lightGolden: string;
+    };
+  }
+}
 
 export const goldenBlackTheme = createTheme({
   ...baseTheme,

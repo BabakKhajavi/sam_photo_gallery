@@ -1,32 +1,17 @@
 import { ICity } from '@packages/common';
-import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+import { Schema, model, Document } from 'mongoose';
 
-interface ICityCreationAttributes extends Optional<ICity, 'id'> {}
+const citySchema = new Schema<ICity>({
+  id: {
+    type: String,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+});
 
-class City extends Model<ICity, ICityCreationAttributes> implements ICity {
-  public id!: number;
-  public name!: string;
-  static initialize(sequelize: Sequelize) {
-    City.init(
-      {
-        id: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-          allowNull: false,
-        },
-        name: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-      },
-      {
-        sequelize,
-        modelName: 'city',
-        timestamps: false,
-      }
-    );
-  }
-}
+const City = model<ICity>('City', citySchema);
 
 export { City };

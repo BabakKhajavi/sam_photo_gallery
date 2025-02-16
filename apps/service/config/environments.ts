@@ -24,4 +24,5 @@ export const environment = {
     sendgridAlarmTemplateId: process.env.SENDGRID_ALARM_TEMPLATE_ID,
     sendgridAutoReplayTemplateId: process.env.SENDGRID_AUTO_REPLAY_TEMPLATE_ID,
   },
+  dbUrl: process.env.DB_Connection_URL,
 };

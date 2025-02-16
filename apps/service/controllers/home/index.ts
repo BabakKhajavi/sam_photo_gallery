@@ -3,12 +3,10 @@ import { Request, Response } from 'express';
 
 import { Home } from '../../models/home';
 import { isAuthorized } from '../../middleware/user-validator';
-import { cleanUpFile, singleFileUpload } from '../../utils/file-upload';
-import { ErrorMessages, MediaPath, SuccessStatusCode } from '../../types';
-import { HttpError } from '../../utils/http-error';
 import { homeValidators } from './home-validators';
 import { validateRequest } from '../../middleware/request-validator';
-
+import { ErrorMessages, SuccessStatusCode } from '../../types';
+import { HttpError } from '../../utils/http-error';
 const router = express.Router();
 
 router
@@ -16,7 +14,7 @@ router
   .get(async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = parseInt(req.params.id);
-      const result = await Home.findByPk(id);
+      const result = await Home.findById(id);
       res.status(SuccessStatusCode.OK).send(result);
     } catch (error) {
       next(error);
@@ -27,7 +25,7 @@ router
   .route('/')
   .get(async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await Home.findAll();
+      const result = await Home.find();
       res.status(SuccessStatusCode.OK).send(result);
     } catch (error) {
       next(error);
@@ -38,65 +36,42 @@ router
   .route('/')
   .post(
     isAuthorized,
-    singleFileUpload(MediaPath.APPROACH),
     homeValidators.createValidator,
     validateRequest,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        let payload = { ...req.body, step: parseInt(req.body.step) };
-        const formFile = req.file;
-        if (formFile) {
-          const filePath = formFile.path;
-          payload = {
-            ...payload,
-            media: filePath,
-          };
-        }
-
-        const home = await Home.create(payload);
+        let payload = { ...req.body };
+        const home = new Home(payload);
+        await home.save();
         res.status(SuccessStatusCode.CREATED).send(home);
       } catch (error) {
-        if (req.file) {
-          cleanUpFile(req.file.path);
-        }
         next(error);
       }
-    }
+    },
   );
 
 router
   .route('/:id')
   .put(
     isAuthorized,
-    singleFileUpload(MediaPath.APPROACH),
     homeValidators.updateValidator,
     validateRequest,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const id = parseInt(req.params.id);
-        const formFile = req.file;
-        let payload = { ...req.body, step: parseInt(req.body.step) };
-        const result = await Home.findByPk(id);
-        if (formFile) {
-          const filePath = formFile.path;
-          payload = {
-            ...payload,
-            media: filePath,
-          };
-          if (result?.media) cleanUpFile(result.media);
-        }
+        const payload = { ...req.body };
+        const result = await Home.findByIdAndUpdate(id, payload, {
+          new: true,
+          runValidators: true,
+        });
         if (!result) {
           return next(HttpError.notFound(ErrorMessages.NoRecordFound));
         }
-        await result.update(payload);
-        res.status(SuccessStatusCode.OK).send({ message: 'Home updated!' });
+        res.status(SuccessStatusCode.OK).send(result);
       } catch (error) {
-        if (req.file) {
-          cleanUpFile(req.file.path);
-        }
         next(error);
       }
-    }
+    },
   );
 
 router
@@ -106,21 +81,14 @@ router
     homeValidators.deleteValidator,
     validateRequest,
     async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id);
 
-        const result = await Home.findByPk(id);
-        if (!result) {
-          next(HttpError.notFound(ErrorMessages.NoRecordFound));
-        }
-
-        await Home.destroy({ where: { id } });
-        if (result?.media) cleanUpFile(result.media);
-        res.status(SuccessStatusCode.OK).send(result);
-      } catch (error) {
-        next(error);
+      const result = await Home.findByIdAndDelete(id);
+      if (!result) {
+        return next(HttpError.notFound(ErrorMessages.NoRecordFound));
       }
-    }
+      res.status(SuccessStatusCode.OK).send(result);
+    },
   );
 
 export { router as homeController };

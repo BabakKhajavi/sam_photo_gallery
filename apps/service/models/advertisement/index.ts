@@ -1,37 +1,24 @@
 import { IAdvertisement } from '@packages/common';
-import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+import { Schema, model, Document } from 'mongoose';
 
-interface IAdvertisementCreationAttributes
-  extends Optional<IAdvertisement, 'id'> {}
+const advertisementSchema = new Schema<IAdvertisement>({
+  id: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+    required: true,
+  },
+  html: {
+    type: String,
+    required: true,
+  },
+});
 
-class Advertisement
-  extends Model<IAdvertisement, IAdvertisementCreationAttributes>
-  implements IAdvertisement
-{
-  public id!: number;
-  public type!: string;
-  public htmlContent!: string;
-  public styles!: string;
+const Advertisement = model<IAdvertisement>(
+  'Advertisement',
+  advertisementSchema,
+);
 
-  static initialize(sequelize: Sequelize) {
-    Advertisement.init(
-      {
-        id: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-          allowNull: false,
-        },
-        type: DataTypes.STRING,
-        htmlContent: DataTypes.STRING,
-        styles: DataTypes.STRING,
-      },
-      {
-        sequelize,
-        modelName: 'advertisement',
-        timestamps: false,
-      }
-    );
-  }
-}
 export { Advertisement };

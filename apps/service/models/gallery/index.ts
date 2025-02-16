@@ -1,65 +1,37 @@
 import { IGallery } from '@packages/common';
-import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+import { Schema, model, Document } from 'mongoose';
 
-interface IGalleryCreationAttributes extends Optional<IGallery, 'id'> {}
+const gallerySchema = new Schema<IGallery>({
+  id: {
+    type: String,
+    required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  subtitle: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  media: {
+    type: String,
+    required: true,
+  },
+  media_thumb: {
+    type: String,
+    required: true,
+  },
+  is_main: {
+    type: Boolean,
+    required: true,
+  },
+});
 
-class Gallery
-  extends Model<IGallery, IGalleryCreationAttributes>
-  implements IGallery
-{
-  public id!: number;
-  public title!: string;
-  public subtitle!: string;
-  public description!: string;
-  public media!: string;
-  public media_thumb!: string;
-  public is_main!: boolean;
-  public subcategory_id!: number;
-  static initialize(sequelize: Sequelize) {
-    Gallery.init(
-      {
-        id: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-          allowNull: false,
-        },
-        title: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        subtitle: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        description: {
-          type: DataTypes.STRING,
-          allowNull: true,
-        },
-        media: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        media_thumb: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        is_main: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-        },
-        subcategory_id: {
-          type: DataTypes.INTEGER,
-          allowNull: false,
-        },
-      },
-      {
-        sequelize,
-        modelName: 'gallery',
-        timestamps: false,
-      }
-    );
-  }
-}
+const Gallery = model<IGallery>('Gallery', gallerySchema);
 
 export { Gallery };

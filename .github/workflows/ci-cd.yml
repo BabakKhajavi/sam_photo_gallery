@@ -25,7 +25,7 @@ jobs:
   #       run: yarn install
 
   #     - name: Run tests
-  #       run: yarn workspace @closet/dashboard run test
+  #       run: yarn workspace @photo/dashboard run test
 
   deploy:
     runs-on: ubuntu-latest

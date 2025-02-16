@@ -1,26 +1,15 @@
+import mongoose from 'mongoose';
 import { environment } from '../config/environments';
-import { initializeModels } from '../models';
-import { Sequelize } from 'sequelize';
-
-export const sequelize = new Sequelize(
-  environment.dbName,
-  environment.username,
-  environment.password,
-  {
-    dialect: 'mysql',
-    host: environment.host,
-    logging: environment.loggingDatabase,
-  }
-);
+// import { initializeModels } from '../models';
 
 export const connectToDatabase = async () => {
+  console.log('Connecting to the database...', environment.dbUrl);
   try {
-    await sequelize.authenticate();
+    await mongoose.connect(environment.dbUrl as string);
     console.log('Connection has been established successfully.');
 
-    initializeModels(sequelize);
-    await sequelize.sync({ alter: true });
-    console.log('Database synchronized successfully.');
+    // initializeModels();
+    console.log('Database models initialized successfully.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }

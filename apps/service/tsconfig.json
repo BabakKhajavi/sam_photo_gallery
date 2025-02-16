@@ -15,8 +15,15 @@
     "paths": {
       "@packages/common/*": ["../packages/common/src/*"]
     },
-    "types": ["node", "express"]
+    "types": ["node", "express"],
+    "resolveJsonModule": true
   },
-  "include": ["**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "../../packages/common/src/**/*.ts",
+    "../../packages/common/src/**/*.d.ts",
+    "../../packages/common/src/declarations.d.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

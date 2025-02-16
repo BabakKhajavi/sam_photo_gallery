@@ -1,23 +1,67 @@
 import { configureStore } from '@reduxjs/toolkit';
-// import { composeWithDevTools } from 'redux-devtools-extension';
-import rootReducer from './rootReducer';
-const root_url = process.env.NEXT_PUBLIC_BASE_URL;
-export const makeStore = () => {
-  return configureStore({
+import { setupListeners } from '@reduxjs/toolkit/query';
+import { apiSlices, rootReducer } from './root-reducer';
+
+const root_url = process.env.REACT_APP_ROOT_URL;
+
+export function setupStore(preloadedState?: Partial<RootState>) {
+  const store = configureStore({
     reducer: rootReducer,
-    devTools: true,
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         thunk: {
           extraArgument: root_url,
         },
         serializableCheck: false,
-      }),
+      }).concat(apiSlices.map((slice) => slice.middleware)),
+    preloadedState,
   });
+
+  setupListeners(store.dispatch);
+
+  return store;
+}
+
+export type RootState = ReturnType<typeof rootReducer>;
+export type AppStore = ReturnType<typeof setupStore>;
+export type AppDispatch = AppStore['dispatch'];
+
+const loadState = (): Partial<RootState> => {
+  try {
+    const serializedAuthState = localStorage.getItem('authState');
+    const serializedMapState = localStorage.getItem('mapState');
+    const authReducer = serializedAuthState
+      ? JSON.parse(serializedAuthState)
+      : undefined;
+    const mapReducer = serializedMapState
+      ? JSON.parse(serializedMapState)
+      : undefined;
+
+    return {
+      authReducer,
+      mapReducer,
+    };
+  } catch {
+    return {};
+  }
 };
 
-// Infer the type of makeStore
-export type StoreType = ReturnType<typeof makeStore>;
-// Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<StoreType['getState']>;
-export type AppDispatch = StoreType['dispatch'];
+const saveState = (state: RootState) => {
+  try {
+    const serializedAuthState = JSON.stringify(state.authReducer);
+    const serializedMapState = JSON.stringify(state.mapReducer);
+    localStorage.setItem('authState', serializedAuthState);
+    localStorage.setItem('mapState', serializedMapState);
+  } catch {
+    console.log('Error saving state');
+  }
+};
+
+const preloadedState = loadState();
+const store = setupStore(preloadedState);
+
+store.subscribe(() => {
+  saveState(store.getState());
+});
+
+export default store;

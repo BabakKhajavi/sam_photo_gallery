@@ -14,7 +14,7 @@ router
   .get(async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = parseInt(req.params.id);
-      const result = await Review.findByPk(id);
+      const result = await Review.findById(id);
       res.status(SuccessStatusCode.OK).send(result);
     } catch (error) {
       next(error);
@@ -25,18 +25,7 @@ router
   .route('/')
   .get(async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await Review.findAll();
-      res.status(SuccessStatusCode.OK).send(result);
-    } catch (error) {
-      next(error);
-    }
-  });
-
-router
-  .route('/approved')
-  .get(async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await Review.findAll({ where: { is_approved: 1 } });
+      const result = await Review.find();
       res.status(SuccessStatusCode.OK).send(result);
     } catch (error) {
       next(error);
@@ -52,12 +41,13 @@ router
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         let payload = { ...req.body };
-        const approach = await Review.create(payload);
-        res.status(SuccessStatusCode.CREATED).send(approach);
+        const review = new Review(payload);
+        await review.save();
+        res.status(SuccessStatusCode.CREATED).send(review);
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 router
@@ -70,16 +60,18 @@ router
       try {
         const id = parseInt(req.params.id);
         const payload = { ...req.body };
-        const result = await Review.findByPk(id);
+        const result = await Review.findByIdAndUpdate(id, payload, {
+          new: true,
+          runValidators: true,
+        });
         if (!result) {
           return next(HttpError.notFound(ErrorMessages.NoRecordFound));
         }
-        await result.update(payload);
         res.status(SuccessStatusCode.OK).send(result);
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 router
@@ -91,13 +83,12 @@ router
     async (req: Request, res: Response, next: NextFunction) => {
       const id = parseInt(req.params.id);
 
-      const result = await Review.findByPk(id);
+      const result = await Review.findByIdAndDelete(id);
       if (!result) {
         return next(HttpError.notFound(ErrorMessages.NoRecordFound));
       }
-      await result.destroy();
       res.status(SuccessStatusCode.OK).send(result);
-    }
+    },
   );
 
 export { router as reviewController };

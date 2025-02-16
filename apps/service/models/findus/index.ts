@@ -1,35 +1,17 @@
 import { IFindUs } from '@packages/common';
-import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+import { Schema, model, Document } from 'mongoose';
 
-interface IContactCreationAttributes extends Optional<IFindUs, 'id'> {}
+const categorySchema = new Schema<IFindUs>({
+  id: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+    required: true,
+  },
+});
 
-class FindUs
-  extends Model<IFindUs, IContactCreationAttributes>
-  implements IFindUs
-{
-  public id!: number;
-  public type!: string;
-  static initialize(sequelize: Sequelize) {
-    FindUs.init(
-      {
-        id: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-          allowNull: false,
-        },
-        type: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-      },
-      {
-        sequelize,
-        modelName: 'findus',
-        timestamps: false,
-      }
-    );
-  }
-}
+const FindUs = model<IFindUs>('FindUs', categorySchema);
 
 export { FindUs };

@@ -1,47 +1,33 @@
 import { IHome } from '@packages/common';
-import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+import { Schema, model, Document } from 'mongoose';
 
-interface IHomeCreationAttributes extends Optional<IHome, 'id'> {}
+const homeSchema = new Schema<IHome>({
+  id: {
+    type: String,
+    required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  subtitle: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  sub_description: {
+    type: String,
+    required: true,
+  },
+  media: {
+    type: String,
+    required: true,
+  },
+});
 
-class Home extends Model<IHome, IHomeCreationAttributes> implements IHome {
-  public id!: number;
-  public title!: string;
-  public description!: string;
-  public subtitle!: string;
-  public media!: string;
-  static initialize(sequelize: Sequelize) {
-    Home.init(
-      {
-        id: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-          allowNull: false,
-        },
-        title: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        description: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        subtitle: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        media: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-      },
-      {
-        sequelize,
-        modelName: 'subcategory',
-        timestamps: false,
-      }
-    );
-  }
-}
+const Home = model<IHome>('Home', homeSchema);
 
 export { Home };

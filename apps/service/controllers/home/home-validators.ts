@@ -7,9 +7,9 @@ const shouldBeString = (field: string) => `${field} should be a string.`;
 const commonValidations = [
   body('title')
     .isString()
-    .withMessage(shouldBeString('Title'))
+    .withMessage(shouldBeString('title'))
     .notEmpty()
-    .withMessage(isRequired('Title')),
+    .withMessage(isRequired('title')),
   body('subtitle')
     .isString()
     .withMessage(shouldBeString('subtitle'))
@@ -17,9 +17,14 @@ const commonValidations = [
     .withMessage(isRequired('subtitle')),
   body('description')
     .isString()
-    .withMessage(shouldBeString('Description'))
+    .withMessage(shouldBeString('description'))
     .notEmpty()
-    .withMessage(isRequired('Description')),
+    .withMessage(isRequired('description')),
+  body('description')
+    .isString()
+    .withMessage(shouldBeString('description'))
+    .notEmpty()
+    .withMessage(isRequired('description')),
   body('media')
     .custom((value, { req }) => {
       if (typeof value === 'string' || req.file) {

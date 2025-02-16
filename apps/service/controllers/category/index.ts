@@ -3,11 +3,10 @@ import { Request, Response } from 'express';
 
 import { Category } from '../../models/category';
 import { isAuthorized } from '../../middleware/user-validator';
-import { ErrorMessages, SuccessStatusCode } from '../../types';
-import { HttpError } from '../../utils/http-error';
 import { categoryValidators } from './category-validators';
 import { validateRequest } from '../../middleware/request-validator';
-
+import { ErrorMessages, SuccessStatusCode } from '../../types';
+import { HttpError } from '../../utils/http-error';
 const router = express.Router();
 
 router
@@ -15,7 +14,7 @@ router
   .get(async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = parseInt(req.params.id);
-      const result = await Category.findByPk(id);
+      const result = await Category.findById(id);
       res.status(SuccessStatusCode.OK).send(result);
     } catch (error) {
       next(error);
@@ -26,7 +25,7 @@ router
   .route('/')
   .get(async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await Category.findAll();
+      const result = await Category.find();
       res.status(SuccessStatusCode.OK).send(result);
     } catch (error) {
       next(error);
@@ -41,13 +40,14 @@ router
     validateRequest,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const payload = { ...req.body };
-        const category = await Category.create(payload);
+        let payload = { ...req.body };
+        const category = new Category(payload);
+        await category.save();
         res.status(SuccessStatusCode.CREATED).send(category);
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 router
@@ -60,16 +60,18 @@ router
       try {
         const id = parseInt(req.params.id);
         const payload = { ...req.body };
-        const result = await Category.findByPk(id);
+        const result = await Category.findByIdAndUpdate(id, payload, {
+          new: true,
+          runValidators: true,
+        });
         if (!result) {
           return next(HttpError.notFound(ErrorMessages.NoRecordFound));
         }
-        await result.update(payload);
-        res.status(SuccessStatusCode.OK).send({ message: 'Category updated!' });
+        res.status(SuccessStatusCode.OK).send(result);
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 router
@@ -79,19 +81,14 @@ router
     categoryValidators.deleteValidator,
     validateRequest,
     async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id);
 
-        const result = await Category.findByPk(id);
-        if (!result) {
-          return next(HttpError.notFound(ErrorMessages.NoRecordFound));
-        }
-        await result.destroy();
-        res.status(SuccessStatusCode.OK).send(result);
-      } catch (error) {
-        next(error);
+      const result = await Category.findByIdAndDelete(id);
+      if (!result) {
+        return next(HttpError.notFound(ErrorMessages.NoRecordFound));
       }
-    }
+      res.status(SuccessStatusCode.OK).send(result);
+    },
   );
 
 export { router as categoryController };

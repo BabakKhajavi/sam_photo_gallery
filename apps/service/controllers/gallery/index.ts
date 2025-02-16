@@ -6,38 +6,13 @@ import { ErrorMessages, MediaPath, SuccessStatusCode } from '../../types';
 import { HttpError } from '../../utils/http-error';
 import { galleryValidators } from './gallery-validators';
 import { validateRequest } from '../../middleware/request-validator';
-
-const router: express.Router = express.Router();
+const router = express.Router();
 router
   .route('/:id')
   .get(async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = parseInt(req.params.id);
-      const result = await Gallery.findByPk(id);
-      res.status(SuccessStatusCode.OK).send(result);
-    } catch (error) {
-      next(error);
-    }
-  });
-
-router
-  .route('/subcategory/:id')
-  .get(async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const id = parseInt(req.params.id);
-      const result = await Gallery.findOne({ where: { subcategory_id: id } });
-      res.status(SuccessStatusCode.OK).send(result);
-    } catch (error) {
-      next(error);
-    }
-  });
-
-router
-  .route('/main')
-  .get(async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const id = parseInt(req.params.id);
-      const result = await Gallery.findAll({ where: { is_main: true } });
+      const result = await Gallery.findById(id);
       res.status(SuccessStatusCode.OK).send(result);
     } catch (error) {
       next(error);
@@ -48,7 +23,7 @@ router
   .route('/')
   .get(async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await Gallery.findAll();
+      const result = await Gallery.find();
       res.status(SuccessStatusCode.OK).send(result);
     } catch (error) {
       next(error);
@@ -74,7 +49,8 @@ router.route('/').post(
         media_thumb: mediaThumbFilePath,
       };
 
-      const gallery = await Gallery.create(payload);
+      const gallery = new Gallery(payload);
+      await gallery.save();
       res
         .status(SuccessStatusCode.CREATED)
         .send({ message: 'Gallery created!', gallery });
@@ -87,7 +63,7 @@ router.route('/').post(
       }
       next(error);
     }
-  }
+  },
 );
 
 router.route('/:id').put(
@@ -100,29 +76,38 @@ router.route('/:id').put(
   ]),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       const mediaFilePath = files?.['media']?.[0]?.path ?? '';
       const mediaThumbFilePath = files?.['media_thumb']?.[0]?.path ?? '';
-      const result = await Gallery.findByPk(id);
-      if (result?.media) cleanUpFile(result.media);
-      if (!result) {
+
+      const existingGallery = await Gallery.findById(id);
+      if (!existingGallery) {
         return next(HttpError.notFound(ErrorMessages.NoRecordFound));
       }
+
       const payload = {
         ...req.body,
-        media: mediaFilePath || result.media,
-        media_thumb: mediaThumbFilePath || result.media_thumb,
+        media: mediaFilePath || existingGallery.media,
+        media_thumb: mediaThumbFilePath || existingGallery.media_thumb,
       };
-      await result.update(payload);
-      res.status(SuccessStatusCode.OK).send({ message: 'Gallery updated!' });
-    } catch (error) {
-      if (req.file) {
-        cleanUpFile(req.file.path);
+
+      const updatedGallery = await Gallery.findByIdAndUpdate(id, payload, {
+        new: true,
+        runValidators: true,
+      });
+
+      if (existingGallery.media && mediaFilePath) {
+        cleanUpFile(existingGallery.media);
       }
+
+      res
+        .status(SuccessStatusCode.OK)
+        .send({ message: 'Gallery updated!', gallery: updatedGallery });
+    } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router
@@ -133,20 +118,25 @@ router
     validateRequest,
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
 
-        const result = await Gallery.findByPk(id);
-        if (!result) {
-          next(HttpError.notFound(ErrorMessages.NoRecordFound));
+        const existingGallery = await Gallery.findById(id);
+        if (!existingGallery) {
+          return next(HttpError.notFound(ErrorMessages.NoRecordFound));
         }
 
-        await Gallery.destroy({ where: { id } });
-        if (result?.media) cleanUpFile(result.media);
-        res.status(SuccessStatusCode.OK).send(result);
+        await Gallery.findByIdAndDelete(id);
+        if (existingGallery.media) {
+          cleanUpFile(existingGallery.media);
+        }
+
+        res
+          .status(SuccessStatusCode.OK)
+          .send({ message: 'Gallery deleted!', gallery: existingGallery });
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export { router as galleryController };
