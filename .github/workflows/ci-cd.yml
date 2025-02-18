@@ -51,6 +51,7 @@ jobs:
       - name: Verify PM2 Path and Service Directory
         run: |
           ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} '
+            export PATH=$PATH:/root/.nvm/versions/node/v20.18.3/bin &&
             echo "Verifying PM2 Path..."
             /root/.nvm/versions/node/v20.18.3/bin/pm2 -v
             echo "Checking service directory..."
@@ -60,6 +61,7 @@ jobs:
       - name: Restart PM2 and Start Server
         run: |
           ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} '
+            export PATH=$PATH:/root/.nvm/versions/node/v20.18.3/bin &&
             /root/.nvm/versions/node/v20.18.3/bin/pm2 stop sam_service_app || true &&
             /root/.nvm/versions/node/v20.18.3/bin/pm2 start /service/server.js --name sam_service_app &&
             echo "Server started successfully!"
