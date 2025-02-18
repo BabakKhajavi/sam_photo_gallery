@@ -29,12 +29,15 @@ jobs:
       # - name: List source directory contents
       #   run: ls -la
 
-      - name: Verify SSH private key format
-        run: echo "${{ secrets.DROPLET_SSH_KEY }}" | grep 'PRIVATE KEY'
+      - name: Create SSH private key file
+        run: |
+          echo "${{ secrets.DROPLET_SSH_KEY }}" > /tmp/droplet_key
+          sed -i 's/\\n/\n/g' /tmp/droplet_key
+          chmod 600 /tmp/droplet_key
 
       - name: Test SSH connection
         run: |
-          ssh -i ${{ secrets.DROPLET_SSH_KEY }} -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
+          ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
 
       # - name: Copy files via SSH
       #   uses: appleboy/scp-action@v0.1.1
