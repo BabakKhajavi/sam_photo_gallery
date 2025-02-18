@@ -19,7 +19,9 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: yarn install
+        run: |
+          yarn run build:common
+          yarn run build:service
 
       - name: Build the project
         run: yarn build
@@ -52,5 +54,4 @@ jobs:
           key: ${{ secrets.DROPLET_SSH_KEY }}
           script: |
             pm2 stop service_app || true
-            pm2 kill
             pm2 start /apps/service/dist/server.js --name service_app
