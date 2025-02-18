@@ -26,29 +26,19 @@ jobs:
           yarn run build:common
           yarn run build:service
 
-      - name: List source directory contents
-        run: ls -la
-
-      # - name: Create SSH private key file
-      #   run: |
-      #     echo "${{ secrets.DROPLET_SSH_KEY }}" > /tmp/droplet_key
-      #     sed -i 's/\\n/\n/g' /tmp/droplet_key
-      #     chmod 600 /tmp/droplet_key
-
-      # - name: Test SSH connection
-      #   run: |
-      #     ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
-
-      # - name: Debug SSH connection
-      #   run: |
-      #     ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'ls -la /service'
+      - name: Create SSH private key file and Test SSH connection
+        run: |
+          echo "${{ secrets.DROPLET_SSH_KEY }}" > /tmp/droplet_key
+          sed -i 's/\\n/\n/g' /tmp/droplet_key
+          chmod 600 /tmp/droplet_key
+          ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
 
       - name: Copy files via SSH
         uses: appleboy/scp-action@v0.1.1
         with:
           host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DROPLET_USERNAME }}
-          key: ${{ secrets.DROPLET_SSH_KEY }}
+          key_path: /tmp/droplet_key
           source: 'apps/service/dist/*'
           target: '/service'
           debug: true
@@ -63,13 +53,6 @@ jobs:
           echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" >> $GITHUB_ENV
           echo "SENDGRID_REQUEST_ALARM_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_ALARM_TEMPLATE_ID }}" >> $GITHUB_ENV
           echo "SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID }}" >> $GITHUB_ENV
-
-          - name: Create SSH private key file and Test SSH connection
-          run: |
-            echo "${{ secrets.DROPLET_SSH_KEY }}" > /tmp/droplet_key
-            sed -i 's/\\n/\n/g' /tmp/droplet_key
-            chmod 600 /tmp/droplet_key
-            ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
 
       - name: Verify PM2 Path and Service Directory
         run: |
