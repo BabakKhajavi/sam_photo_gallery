@@ -26,22 +26,16 @@ jobs:
           yarn run build:common
           yarn run build:service
 
-      - name: Create SSH private key file and Test SSH connection
+      - name: Create SSH private key file
         run: |
           echo "${{ secrets.DROPLET_SSH_KEY }}" > /tmp/droplet_key
           sed -i 's/\\n/\n/g' /tmp/droplet_key
           chmod 600 /tmp/droplet_key
-          ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
 
-      - name: Copy files via SSH
-        uses: appleboy/scp-action@v0.1.1
-        with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: ${{ secrets.DROPLET_USERNAME }}
-          key_path: /tmp/droplet_key
-          source: 'apps/service/dist/*'
-          target: '/service'
-          debug: true
+      - name: Test SSH connection and Copy files via SSH
+        run: |
+          ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
+          scp -i /tmp/droplet_key -o StrictHostKeyChecking=no -r apps/service/dist/* ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }}:/service
 
       - name: Set up environment variables
         run: |
@@ -56,9 +50,6 @@ jobs:
 
       - name: Verify PM2 Path and Service Directory
         run: |
-          echo "${{ secrets.DROPLET_SSH_KEY }}" > /tmp/droplet_key
-          sed -i 's/\\n/\n/g' /tmp/droplet_key
-          chmod 600 /tmp/droplet_key
           ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} '
             echo "Verifying PM2 Path..."
             /root/.nvm/versions/node/v20.18.3/bin/pm2 -v
@@ -68,9 +59,6 @@ jobs:
 
       - name: Restart PM2 and Start Server
         run: |
-          echo "${{ secrets.DROPLET_SSH_KEY }}" > /tmp/droplet_key
-          sed -i 's/\\n/\n/g' /tmp/droplet_key
-          chmod 600 /tmp/droplet_key
           ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} '
             /root/.nvm/versions/node/v20.18.3/bin/pm2 stop sam_service_app || true &&
             /root/.nvm/versions/node/v20.18.3/bin/pm2 start /service/server.js --name sam_service_app &&
