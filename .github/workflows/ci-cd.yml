@@ -26,6 +26,9 @@ jobs:
           yarn run build:common
           yarn run build:service
 
+      - name: List source directory contents
+        run: ls -la
+
       - name: Copy files via SSH
         uses: appleboy/scp-action@v0.1.1
         with:
