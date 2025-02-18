@@ -18,16 +18,16 @@ jobs:
         with:
           node-version: '20'
 
-      # - name: Install dependencies
-      #   run: yarn install
+      - name: Install dependencies
+        run: yarn install
 
-      # - name: Build the project
-      #   run: |
-      #     yarn run build:common
-      #     yarn run build:service
+      - name: Build the project
+        run: |
+          yarn run build:common
+          yarn run build:service
 
-      # - name: List source directory contents
-      #   run: ls -la
+      - name: List source directory contents
+        run: ls -la
 
       - name: Create SSH private key file
         run: |
@@ -39,33 +39,33 @@ jobs:
         run: |
           ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
 
-      # - name: Copy files via SSH
-      #   uses: appleboy/scp-action@v0.1.1
-      #   with:
-      #     host: ${{ secrets.DROPLET_IP }}
-      #     username: ${{ secrets.DROPLET_USERNAME }}
-      #     key: ${{ secrets.DROPLET_SSH_KEY }}
-      #     source: 'apps/service/dist/*'
-      #     target: '/service'
-      #     debug: true
+      - name: Copy files via SSH
+        uses: appleboy/scp-action@v0.1.1
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          source: 'apps/service/dist/*'
+          target: '/service'
+          debug: true
 
-      # - name: Set up environment variables
-      #   run: |
-      #     echo "SERVICE_CORS_ORIGIN_PORTAL=${{ secrets.SERVICE_CORS_ORIGIN_PORTAL }}" >> $GITHUB_ENV
-      #     echo "SERVICE_CORS_ORIGIN_APP=${{ secrets.SERVICE_CORS_ORIGIN_APP }}" >> $GITHUB_ENV
-      #     echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> $GITHUB_ENV
-      #     echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
-      #     echo "DB_CONNECTION_URL=${{ secrets.DB_CONNECTION_URL }}" >> $GITHUB_ENV
-      #     echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" >> $GITHUB_ENV
-      #     echo "SENDGRID_REQUEST_ALARM_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_ALARM_TEMPLATE_ID }}" >> $GITHUB_ENV
-      #     echo "SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID }}" >> $GITHUB_ENV
+      - name: Set up environment variables
+        run: |
+          echo "SERVICE_CORS_ORIGIN_PORTAL=${{ secrets.SERVICE_CORS_ORIGIN_PORTAL }}" >> $GITHUB_ENV
+          echo "SERVICE_CORS_ORIGIN_APP=${{ secrets.SERVICE_CORS_ORIGIN_APP }}" >> $GITHUB_ENV
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> $GITHUB_ENV
+          echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
+          echo "DB_CONNECTION_URL=${{ secrets.DB_CONNECTION_URL }}" >> $GITHUB_ENV
+          echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" >> $GITHUB_ENV
+          echo "SENDGRID_REQUEST_ALARM_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_ALARM_TEMPLATE_ID }}" >> $GITHUB_ENV
+          echo "SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID }}" >> $GITHUB_ENV
 
-      # - name: Restart PM2
-      #   uses: appleboy/ssh-action@v0.1.1
-      #   with:
-      #     host: ${{ secrets.DROPLET_IP }}
-      #     username: ${{ secrets.DROPLET_USERNAME }}
-      #     key: ${{ secrets.DROPLET_SSH_KEY }}
-      #     script: |
-      #       pm2 stop sam_service_app || true
-      #       pm2 start /service/server.js --name sam_service_app
+      - name: Restart PM2
+        uses: appleboy/ssh-action@v0.1.1
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          script: |
+            pm2 stop sam_service_app || true
+            pm2 start /service/server.js --name sam_service_app
