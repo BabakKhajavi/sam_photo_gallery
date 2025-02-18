@@ -29,19 +29,19 @@ jobs:
       - name: List source directory contents
         run: ls -la
 
-      - name: Create SSH private key file
-        run: |
-          echo "${{ secrets.DROPLET_SSH_KEY }}" > /tmp/droplet_key
-          sed -i 's/\\n/\n/g' /tmp/droplet_key
-          chmod 600 /tmp/droplet_key
+      # - name: Create SSH private key file
+      #   run: |
+      #     echo "${{ secrets.DROPLET_SSH_KEY }}" > /tmp/droplet_key
+      #     sed -i 's/\\n/\n/g' /tmp/droplet_key
+      #     chmod 600 /tmp/droplet_key
 
-      - name: Test SSH connection
-        run: |
-          ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
+      # - name: Test SSH connection
+      #   run: |
+      #     ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
 
-      - name: Debug SSH connection
-        run: |
-          ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'ls -la /service'
+      # - name: Debug SSH connection
+      #   run: |
+      #     ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'ls -la /service'
 
       - name: Copy files via SSH
         uses: appleboy/scp-action@v0.1.1
@@ -64,12 +64,20 @@ jobs:
           echo "SENDGRID_REQUEST_ALARM_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_ALARM_TEMPLATE_ID }}" >> $GITHUB_ENV
           echo "SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID }}" >> $GITHUB_ENV
 
-      - name: Restart PM2
-        uses: appleboy/ssh-action@v0.1.1
-        with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: ${{ secrets.DROPLET_USERNAME }}
-          key_path: /tmp/droplet_key
-          script: |
-            pm2 stop sam_service_app || true
-            pm2 start /service/server.js --name sam_service_app
+      - name: Create SSH private key file and Test SSH connection
+        run: |
+          echo "${{ secrets.DROPLET_SSH_KEY }}" > /tmp/droplet_key
+          sed -i 's/\\n/\n/g' /tmp/droplet_key
+          chmod 600 /tmp/droplet_key
+          ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
+
+      - name: Restart PM2 and Start Server
+        run: |
+          echo "${{ secrets.DROPLET_SSH_KEY }}" > /tmp/droplet_key
+          sed -i 's/\\n/\n/g' /tmp/droplet_key
+          chmod 600 /tmp/droplet_key
+          ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} '
+            pm2 stop sam_service_app || true &&
+            pm2 start /service/server.js --name sam_service_app &&
+            echo "Server started successfully!"
+            '
