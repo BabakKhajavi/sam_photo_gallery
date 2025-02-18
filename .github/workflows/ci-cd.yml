@@ -30,11 +30,11 @@ jobs:
         run: ls -la
 
       - name: Verify SSH private key format
-        run: echo "${{ secrets.DROPLET_SSH_KEY }}" | grep 'PRIVATE KEY'
+        run: echo "${{ env.DROPLET_SSH_KEY }}" | grep 'PRIVATE KEY'
 
       - name: Test SSH connection
         run: |
-          ssh -i ${{ secrets.DROPLET_SSH_KEY }} -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
+          ssh -i ${{ env.DROPLET_SSH_KEY }} -o StrictHostKeyChecking=no ${{ env.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
 
       - name: Copy files via SSH
         uses: appleboy/scp-action@v0.1.1
