@@ -77,7 +77,7 @@ jobs:
           sed -i 's/\\n/\n/g' /tmp/droplet_key
           chmod 600 /tmp/droplet_key
           ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} '
-            pm2 stop sam_service_app || true &&
-            pm2 start /service/server.js --name sam_service_app &&
+            /usr/local/bin/pm2 stop sam_service_app || true &&
+            /usr/local/bin/pm2 start /service/server.js --name sam_service_app &&
             echo "Server started successfully!"
-            '
+          '
