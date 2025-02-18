@@ -32,8 +32,9 @@ jobs:
           host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_SSH_KEY }}
-          source: 'dist/*'
-          target: '/apps/service/dist'
+          source: 'apps/service/dist/*'
+          target: '/service'
+          debug: true
 
       - name: Set up environment variables
         run: |
@@ -53,6 +54,5 @@ jobs:
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_SSH_KEY }}
           script: |
-            pm2 stop service_app || true
-            pm2 kill
-            pm2 start /apps/service/dist/server.js --name service_app
+            pm2 stop sam_service_app || true
+            pm2 start /service/server.js --name sam_service_app
