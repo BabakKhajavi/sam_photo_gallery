@@ -64,12 +64,24 @@ jobs:
           echo "SENDGRID_REQUEST_ALARM_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_ALARM_TEMPLATE_ID }}" >> $GITHUB_ENV
           echo "SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID }}" >> $GITHUB_ENV
 
-      - name: Create SSH private key file and Test SSH connection
+          - name: Create SSH private key file and Test SSH connection
+          run: |
+            echo "${{ secrets.DROPLET_SSH_KEY }}" > /tmp/droplet_key
+            sed -i 's/\\n/\n/g' /tmp/droplet_key
+            chmod 600 /tmp/droplet_key
+            ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
+
+      - name: Verify PM2 Path and Service Directory
         run: |
           echo "${{ secrets.DROPLET_SSH_KEY }}" > /tmp/droplet_key
           sed -i 's/\\n/\n/g' /tmp/droplet_key
           chmod 600 /tmp/droplet_key
-          ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} 'echo "SSH connection successful!"'
+          ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} '
+            echo "Verifying PM2 Path..."
+            /root/.nvm/versions/node/v20.18.3/bin/pm2 -v
+            echo "Checking service directory..."
+            ls -la /service
+          '
 
       - name: Restart PM2 and Start Server
         run: |
@@ -77,7 +89,7 @@ jobs:
           sed -i 's/\\n/\n/g' /tmp/droplet_key
           chmod 600 /tmp/droplet_key
           ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} '
-            /usr/local/bin/pm2 stop sam_service_app || true &&
-            /usr/local/bin/pm2 start /service/server.js --name sam_service_app &&
+            /root/.nvm/versions/node/v20.18.3/bin/pm2 stop sam_service_app || true &&
+            /root/.nvm/versions/node/v20.18.3/bin/pm2 start /service/server.js --name sam_service_app &&
             echo "Server started successfully!"
           '
