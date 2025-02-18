@@ -48,6 +48,13 @@ jobs:
           echo "SENDGRID_REQUEST_ALARM_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_ALARM_TEMPLATE_ID }}" >> $GITHUB_ENV
           echo "SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID }}" >> $GITHUB_ENV
 
+      - name: Install Dependencies on Droplet
+        run: |
+          ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} '
+            cd /service &&
+            yarn install
+          '
+
       - name: Verify PM2 Path and Service Directory
         run: |
           ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} '
