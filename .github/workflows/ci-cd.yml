@@ -48,6 +48,15 @@ jobs:
           echo "SENDGRID_REQUEST_ALARM_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_ALARM_TEMPLATE_ID }}" >> $GITHUB_ENV
           echo "SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID=${{ secrets.SENDGRID_REQUEST_AUTO_REPLY_TEMPLATE_ID }}" >> $GITHUB_ENV
 
+      - name: Install Yarn on Droplet
+        run: |
+          ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} '
+            curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - &&
+            echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list &&
+            sudo apt-get update &&
+            sudo apt-get install -y yarn
+          '
+
       - name: Install Dependencies on Droplet
         run: |
           ssh -i /tmp/droplet_key -o StrictHostKeyChecking=no ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} '
